@@ -594,7 +594,7 @@ func BenchmarkAcceptClose(b *testing.B) {
 		}
 	}
 }
-func BenchmarkConnSmux(b *testing.B) {
+func BenchmarkConnSmux128KB(b *testing.B) {
 	cs, ss, err := getSmuxStreamPair()
 	if err != nil {
 		b.Fatal(err)
@@ -602,10 +602,10 @@ func BenchmarkConnSmux(b *testing.B) {
 	defer cs.Close()
 	defer ss.Close()
 	b.ReportAllocs()
-	bench(b, cs, ss)
+	bench(b, cs, ss, 128*1024)
 }
 
-func BenchmarkConnTCP(b *testing.B) {
+func BenchmarkConnTCP28KB(b *testing.B) {
 	cs, ss, err := getTCPConnectionPair()
 	if err != nil {
 		b.Fatal(err)
@@ -613,7 +613,29 @@ func BenchmarkConnTCP(b *testing.B) {
 	defer cs.Close()
 	defer ss.Close()
 	b.ReportAllocs()
-	bench(b, cs, ss)
+	bench(b, cs, ss, 128*1024)
+}
+
+func BenchmarkConnSmux32B(b *testing.B) {
+	cs, ss, err := getSmuxStreamPair()
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer cs.Close()
+	defer ss.Close()
+	b.ReportAllocs()
+	bench(b, cs, ss, 32)
+}
+
+func BenchmarkConnTCP32B(b *testing.B) {
+	cs, ss, err := getTCPConnectionPair()
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer cs.Close()
+	defer ss.Close()
+	b.ReportAllocs()
+	bench(b, cs, ss, 32)
 }
 
 func getSmuxStreamPair() (*Stream, *Stream, error) {
@@ -677,10 +699,10 @@ func getTCPConnectionPair() (net.Conn, net.Conn, error) {
 	return conn0, conn1, nil
 }
 
-func bench(b *testing.B, rd io.Reader, wr io.Writer) {
-	buf := make([]byte, 128*1024)
-	buf2 := make([]byte, 128*1024)
-	b.SetBytes(128 * 1024)
+func bench(b *testing.B, rd io.Reader, wr io.Writer, size int) {
+	buf := make([]byte, size)
+	buf2 := make([]byte, size)
+	b.SetBytes(int64(size))
 	b.ResetTimer()
 
 	var wg sync.WaitGroup
@@ -691,7 +713,7 @@ func bench(b *testing.B, rd io.Reader, wr io.Writer) {
 		for {
 			n, _ := rd.Read(buf2)
 			count += n
-			if count == 128*1024*b.N {
+			if count == size*b.N {
 				return
 			}
 		}
