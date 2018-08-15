@@ -585,6 +585,7 @@ func BenchmarkAcceptClose(b *testing.B) {
 	}
 	defer stop()
 	session, _ := Client(cli, nil)
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		if stream, err := session.OpenStream(); err == nil {
 			stream.Close()
@@ -600,6 +601,7 @@ func BenchmarkConnSmux(b *testing.B) {
 	}
 	defer cs.Close()
 	defer ss.Close()
+	b.ReportAllocs()
 	bench(b, cs, ss)
 }
 
@@ -610,6 +612,7 @@ func BenchmarkConnTCP(b *testing.B) {
 	}
 	defer cs.Close()
 	defer ss.Close()
+	b.ReportAllocs()
 	bench(b, cs, ss)
 }
 
