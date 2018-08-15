@@ -19,7 +19,7 @@ const ( // cmds
 const (
 	sizeOfVer    = 1
 	sizeOfCmd    = 1
-	sizeOfLength = 2
+	sizeOfLength = 4
 	sizeOfSid    = 4
 	headerSize   = sizeOfVer + sizeOfCmd + sizeOfSid + sizeOfLength
 )
@@ -46,12 +46,12 @@ func (h rawHeader) Cmd() byte {
 	return h[1]
 }
 
-func (h rawHeader) Length() uint16 {
-	return binary.LittleEndian.Uint16(h[2:])
+func (h rawHeader) Length() uint32 {
+	return binary.LittleEndian.Uint32(h[2:6])
 }
 
 func (h rawHeader) StreamID() uint32 {
-	return binary.LittleEndian.Uint32(h[4:])
+	return binary.LittleEndian.Uint32(h[6:10])
 }
 
 func (h rawHeader) String() string {

@@ -2,6 +2,7 @@ package smux
 
 import (
 	"bytes"
+	"math"
 	"testing"
 )
 
@@ -43,7 +44,7 @@ func TestConfig(t *testing.T) {
 	}
 
 	config = DefaultConfig()
-	config.MaxFrameSize = 65536
+	config.MaxFrameSize = math.MaxUint32 + 1
 	err = VerifyConfig(config)
 	t.Log(err)
 	if err == nil {

@@ -233,7 +233,7 @@ func (s *Session) readFrame(buffer []byte) (f Frame, err error) {
 
 // recvLoop keeps on reading from underlying connection if tokens are available
 func (s *Session) recvLoop() {
-	buffer := make([]byte, (1<<16)+headerSize)
+	buffer := make([]byte, (s.config.MaxFrameSize)+headerSize)
 	for {
 		for atomic.LoadInt32(&s.bucket) <= 0 && !s.IsClosed() {
 			<-s.bucketNotify
@@ -311,8 +311,8 @@ func (s *Session) sendLoop() {
 		case request := <-s.writes:
 			buf[0] = request.frame.ver
 			buf[1] = request.frame.cmd
-			binary.LittleEndian.PutUint16(buf[2:], uint16(len(request.frame.data)))
-			binary.LittleEndian.PutUint32(buf[4:], request.frame.sid)
+			binary.LittleEndian.PutUint32(buf[2:6], uint32(len(request.frame.data)))
+			binary.LittleEndian.PutUint32(buf[6:10], request.frame.sid)
 			copy(buf[headerSize:], request.frame.data)
 			n, err := s.conn.Write(buf[:headerSize+len(request.frame.data)])
 

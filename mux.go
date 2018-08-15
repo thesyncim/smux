@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"math"
 )
 
 // Config is used to tune the Smux session
@@ -47,8 +48,8 @@ func VerifyConfig(config *Config) error {
 	if config.MaxFrameSize <= 0 {
 		return errors.New("max frame size must be positive")
 	}
-	if config.MaxFrameSize > 65535 {
-		return errors.New("max frame size must not be larger than 65535")
+	if config.MaxFrameSize > math.MaxUint32 {
+		return errors.New("max frame size must not be larger than 4294967295")
 	}
 	if config.MaxReceiveBuffer <= 0 {
 		return errors.New("max receive buffer must be positive")
